@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import {Script} from "forge-std/Script.sol";
+import {Script, console} from "forge-std/Script.sol";
 import {MinimalAccount} from "../src/MinimalAccount.sol";
 import {HelperConfig} from "../script/HelperConfig.s.sol";
 
