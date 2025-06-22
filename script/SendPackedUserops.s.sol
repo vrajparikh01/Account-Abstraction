@@ -14,7 +14,7 @@ contract SendPackedUserops is Script {
 
     function generateSignedUserOperation(bytes memory callData, HelperConfig.NetworkConfig memory config, address minimalAccount) public view returns (PackedUserOperation memory) {
         // 1. Generate the unsigned data for the user operation
-        uint256 nonce =  vm.getNonce(minimalAccount);
+        uint256 nonce =  vm.getNonce(minimalAccount) - 1;
         PackedUserOperation memory userOp = _generateUnsignedUserOperation(callData, minimalAccount, nonce);
 
         // 2. Get the userOp hash

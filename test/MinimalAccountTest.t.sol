@@ -82,4 +82,67 @@ contract MinimalAccountTest is Test {
         );
         assertEq(actualSigner, minimalAccount.owner(), "Signer should be the owner of the account");
     }
+
+    function testValidationUserOps() public {
+        // 1. Sign the user operation
+        address target = address(usdc);
+        uint256 value = 0;
+        bytes memory data = abi.encodeWithSelector(ERC20Mock.mint.selector, address(minimalAccount), AMOUNT);
+
+        // Entrypoint contract call minimal account contract and it will call usdc contract
+        bytes memory executeCallData = abi.encodeWithSelector(
+            MinimalAccount.execute.selector,
+            target,
+            value,
+            data
+        );
+        PackedUserOperation memory packedUserOp = sendPackedUserops.generateSignedUserOperation(
+            executeCallData,
+            helperConfig.getConfig(),
+            address(minimalAccount)
+        );
+        bytes32 userOperationHash = IEntryPoint(helperConfig.getConfig().entryPoint).getUserOpHash(packedUserOp);
+
+        // 2. Call the validateUserOp function and Check the validation data
+        vm.prank(helperConfig.getConfig().entryPoint);
+        uint256 missingAccountFunds = 1e18; 
+
+        uint256 validationData = minimalAccount.validateUserOp(
+            packedUserOp,
+            userOperationHash,
+            missingAccountFunds
+        );
+        assertEq(validationData, 0);
+    }
+
+    function testEntryPointCanExecuteCommands() public {
+        // Arrange
+        address target = address(usdc);
+        uint256 value = 0;
+        bytes memory data = abi.encodeWithSelector(ERC20Mock.mint.selector, address(minimalAccount), AMOUNT);
+
+        // Entrypoint contract call minimal account contract and it will call usdc contract
+        bytes memory executeCallData = abi.encodeWithSelector(
+            MinimalAccount.execute.selector,
+            target,
+            value,
+            data
+        );
+        PackedUserOperation memory packedUserOp = sendPackedUserops.generateSignedUserOperation(
+            executeCallData,
+            helperConfig.getConfig(),
+            address(minimalAccount)
+        );
+        // bytes32 userOperationHash = IEntryPoint(helperConfig.getConfig().entryPoint).getUserOpHash(packedUserOp);
+
+        // Act
+        PackedUserOperation[] memory ops = new PackedUserOperation[](1);
+        ops[0] = packedUserOp;
+
+        vm.prank(randomUser);
+        IEntryPoint(helperConfig.getConfig().entryPoint).handleOps(ops, payable(randomUser));
+
+        // Assert
+        assertEq(usdc.balanceOf(address(minimalAccount)), AMOUNT);
+    }
 }
