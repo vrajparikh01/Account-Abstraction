@@ -19,7 +19,7 @@ contract HelperConfig is Script {
     uint256 constant ARBITRUM_MAINNET_CHAIN_ID = 42161;
     uint256 constant LOCAL_CHAIN_ID = 31337;
     address constant BURNER_WALLET = 0xfEceA7b046b4DaFACE340c7A2fe924cf41b6d274;
-    address constant ANVIL_DEFAULT_ACCOUNT = 0xfEceA7b046b4DaFACE340c7A2fe924cf41b6d274;
+    address constant ANVIL_DEFAULT_ACCOUNT = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     NetworkConfig public localNetworkConfig;
     mapping(uint256 chainId => NetworkConfig) public networkConfigs;
